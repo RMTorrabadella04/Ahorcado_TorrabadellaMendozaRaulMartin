@@ -2,6 +2,7 @@ CREATE DATABASE ahorcado;
 
 USE ahorcado;
 
+
 -- Tablas 
 
 
