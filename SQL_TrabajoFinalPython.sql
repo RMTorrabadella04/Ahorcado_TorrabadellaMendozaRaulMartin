@@ -4,6 +4,7 @@ USE ahorcado;
 
 -- Tablas 
 
+
 CREATE TABLE usuarios(
 	id INT PRIMARY KEY AUTO_INCREMENT,
     nombre VARCHAR(20),
