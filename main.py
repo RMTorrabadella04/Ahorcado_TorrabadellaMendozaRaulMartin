@@ -216,6 +216,10 @@ def configJugar(root):
                         cursor.execute("UPDATE usuarios SET n_victorias = n_victorias + 1 WHERE nombre = %s", (nombre,))
                         reiniciarPartida()
                         conexion.conexion.commit()
+                        cursor.execute("SELECT id FROM usuarios WHERE nombre = %s", (nombre,))
+                        idNombre = cursor.fetchone()[0]
+                        cursor.execute("INSERT partidas (id_usuario, id_palabra, seGano) VALUES (%s, %s, %s)", (idNombre, palabra[0], True))
+                        conexion.conexion.commit()
 
                 else:
                     mb.showerror("Error", f"Letra incorrecta, llevas {fallos} fallos")
@@ -229,6 +233,10 @@ def configJugar(root):
                         conexion.conexion.commit()
                         mb.showerror("Perdiste", f"Has perdido, la palabra era: {palabraAcertar}")
                         reiniciarPartida()
+                        cursor.execute("SELECT id FROM usuarios WHERE nombre = %s", (nombre,))
+                        idNombre = cursor.fetchone()[0]
+                        cursor.execute("INSERT partidas (id_usuario, id_palabra, seGano) VALUES (%s, %s, %s)", (idNombre, palabra[0], False))
+                        conexion.conexion.commit()
 
         ventanaJuego.mainloop()
 
