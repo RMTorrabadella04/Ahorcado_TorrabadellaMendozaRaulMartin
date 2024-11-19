@@ -47,7 +47,7 @@ def main():
     usuarios = []
 
 
-
+# Ventana de configuracion de la partida
 def configJugar(root):
     root.withdraw()
 
