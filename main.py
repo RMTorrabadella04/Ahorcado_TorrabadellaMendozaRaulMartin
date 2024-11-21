@@ -5,6 +5,9 @@ import random
 from conexion import Conexion
 
 fallos=1
+abecedario = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'ñ', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+
+
 
 def main():
     root = tk.Tk()
@@ -179,8 +182,10 @@ def configJugar(root):
         # Funcion para verificar la letra
 
         def reiniciarPartida():
-            global fallos
+            global fallos, abecedario
             respuesta = mb.askyesno("¿Jugar de nuevo?", "¿Quieres jugar otra partida?")
+
+            abecedario = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'ñ', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
             if respuesta:
                 fallos=0
@@ -193,50 +198,58 @@ def configJugar(root):
 
 
         def verificar(letra, palabra, palabraGuionada):
-            global fallos
+            global fallos, abecedario
             insertarLetra.delete(0, tk.END)
+
             palabraAcertar = palabra[1]
             if len(letra) != 1 or letra == " " or not letra.isalpha():
                 mb.showerror("Error", "Introduzca solo una letra")
             else:
                 letra = letra.lower()
-                if letra in palabraAcertar:
-                    for char in range(len(palabraAcertar)):
-                        if palabraAcertar[char] == letra:
-                            palabraGuionada = list(palabraGuionada)
-                            palabraGuionada[char*3+1] = letra
-                    palabraGuionada = "".join(palabraGuionada)
-                    textoGuionadoPalabra.config(text=palabraGuionada)
 
-                    comprobante = "".join(palabraGuionada.split())
-
-                    if comprobante == palabraAcertar:
-                        mb.showinfo("¡Felicidades!", "¡Has ganado!")
-                        cursor = conexion.obtener_cursor()
-                        cursor.execute("UPDATE usuarios SET n_victorias = n_victorias + 1 WHERE nombre = %s", (nombre,))
-                        reiniciarPartida()
-                        conexion.conexion.commit()
-                        cursor.execute("SELECT id FROM usuarios WHERE nombre = %s", (nombre,))
-                        idNombre = cursor.fetchone()[0]
-                        cursor.execute("INSERT partidas (id_usuario, id_palabra, seGano) VALUES (%s, %s, %s)", (idNombre, palabra[0], True))
-                        conexion.conexion.commit()
-
+                if letra not in abecedario:
+                    mb.showerror("Letra Repetida", "Introduzca una letra que no se haya usado")
+                    return
                 else:
-                    mb.showerror("Error", f"Letra incorrecta, llevas {fallos} fallos")
-                    fallos+=1
-                    if fallos <= 6:
-                        foto.config(file=f"Resources/fallo{fallos}Ahorcado.png")
-                    elif fallos == 7:
-                        foto.config(file=f"Resources/fallo{fallos}Ahorcado.png")
-                        cursor = conexion.obtener_cursor()
-                        cursor.execute("UPDATE usuarios SET n_derrotas = n_derrotas + 1 WHERE nombre = %s", (nombre,))
-                        conexion.conexion.commit()
-                        mb.showerror("Perdiste", f"Has perdido, la palabra era: {palabraAcertar}")
-                        reiniciarPartida()
-                        cursor.execute("SELECT id FROM usuarios WHERE nombre = %s", (nombre,))
-                        idNombre = cursor.fetchone()[0]
-                        cursor.execute("INSERT partidas (id_usuario, id_palabra, seGano) VALUES (%s, %s, %s)", (idNombre, palabra[0], False))
-                        conexion.conexion.commit()
+                    abecedario.remove(letra)
+
+                    if letra in palabraAcertar:
+                        for char in range(len(palabraAcertar)):
+                            if palabraAcertar[char] == letra:
+                                palabraGuionada = list(palabraGuionada)
+                                palabraGuionada[char*3+1] = letra
+                        palabraGuionada = "".join(palabraGuionada)
+                        textoGuionadoPalabra.config(text=palabraGuionada)
+
+                        comprobante = "".join(palabraGuionada.split())
+
+                        if comprobante == palabraAcertar:
+                            mb.showinfo("¡Felicidades!", "¡Has ganado!")
+                            cursor = conexion.obtener_cursor()
+                            cursor.execute("UPDATE usuarios SET n_victorias = n_victorias + 1 WHERE nombre = %s", (nombre,))
+                            reiniciarPartida()
+                            conexion.conexion.commit()
+                            cursor.execute("SELECT id FROM usuarios WHERE nombre = %s", (nombre,))
+                            idNombre = cursor.fetchone()[0]
+                            cursor.execute("INSERT partidas (id_usuario, id_palabra, seGano) VALUES (%s, %s, %s)", (idNombre, palabra[0], True))
+                            conexion.conexion.commit()
+
+                    else:
+                        mb.showerror("Error", f"Letra incorrecta, llevas {fallos} fallos")
+                        fallos+=1
+                        if fallos <= 6:
+                            foto.config(file=f"Resources/fallo{fallos}Ahorcado.png")
+                        elif fallos == 7:
+                            foto.config(file=f"Resources/fallo{fallos}Ahorcado.png")
+                            cursor = conexion.obtener_cursor()
+                            cursor.execute("UPDATE usuarios SET n_derrotas = n_derrotas + 1 WHERE nombre = %s", (nombre,))
+                            conexion.conexion.commit()
+                            mb.showerror("Perdiste", f"Has perdido, la palabra era: {palabraAcertar}")
+                            reiniciarPartida()
+                            cursor.execute("SELECT id FROM usuarios WHERE nombre = %s", (nombre,))
+                            idNombre = cursor.fetchone()[0]
+                            cursor.execute("INSERT partidas (id_usuario, id_palabra, seGano) VALUES (%s, %s, %s)", (idNombre, palabra[0], False))
+                            conexion.conexion.commit()
 
         ventanaJuego.mainloop()
 
